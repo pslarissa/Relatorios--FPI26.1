@@ -4,7 +4,7 @@ RELATÓRIOS DAS QUESTÕES DA PRIMEIRA LISTA DE FPI 2026.1
 
 Apesar de ser a primeira questão que fiz na linguagem C, consegui resolvê-la completamente sem o uso de IA. Deixei todo o código com comentários para que não apenas eu, mas outras pessoas também consigam ler e entender. Não achei a questão difícil; apenas me confundia em alguns tópicos por conta da ordem dos cálculos. Acabei fazendo em um pouco mais de 100 linhas e espero que, quando eu tiver mais conhecimento, consiga resolvê-la de forma mais simplificada.
 
-*QUESTÃO 2
+*QUESTÃO 2*
 
 Na segunda questão já comecei a sentir mais dificuldade, porque eu não tinha a menor ideia de como fazer o cálculo e ainda excluir os múltiplos dele. Nessa questão recorri à IA para que ela me direcionasse sobre como eu poderia fazer esse cálculo da soma e também retirar esses múltiplos. Ela me mostrou uma fórmula, e eu a apliquei no código. No fim, consegui resolver.
 
