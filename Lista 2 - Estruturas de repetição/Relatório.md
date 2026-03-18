@@ -20,5 +20,5 @@ QUESTÃO 4 – Fuga no Escuro
 O último programa simula o movimento de um cursor em uma grade bidimensional, com o objetivo de registrar todas as posições visitadas e imprimir o caminho percorrido.
 Foi, sem dúvidas, a questão mais difícil em comparação com as duas listas até agora. Uma questão muito parecida foi usada no teste semanal, e ela definitivamente acabou com a minha semana. Eu consigo entender o enunciado, mas não fazia a mínima ideia de como implementá-lo em C.
 Mesmo tentando bastante e pedindo ajuda à IA, o código não passou em todos os casos de teste, e não consegui enviá-lo. Na plataforma do VS Code, o programa printava corretamente para alguns casos, mas, no The Huxley, apresentava erros.
-Coloquei o código aqui para tentar corrigí-lo futuramente. Tentei resolver de várias formas, mas usando matriz foi o que deixou a solução mais próxima do correto.
+Coloquei o código aqui para tentar corrigí-lo futuramente. Tentei resolver de várias formas, mas usando matriz foi o que deixou a solução mais próxima do que o enunciado pedia. 
 
