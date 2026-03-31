@@ -64,7 +64,7 @@ int main(){
         if (mapa[linha_atual][coluna_atual] == 'd') {
             encontrou_saida = 1;
             metros_percorridos = distancia[linha_atual][coluna_atual];
-            break; // Para o loop imediatamente
+            break; // Para o loop
         }
 
         //Tenta se mover para as 4 direções vizinhas
