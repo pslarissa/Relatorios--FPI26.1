@@ -1,0 +1,159 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, k;
+
+    //if para ler a quantidade certa inicial de alunos n
+    if (scanf("%d", &n) != 1) return 0;
+
+    //alocacao dinamica inicial: reserva memoria para uma quantidade de numeros reais (float)
+    //com o ponteiro notas apontando para o inicio desse bloco de memoria
+    float *notas = (float *)malloc(n * sizeof(float));
+    if (notas == NULL) return 1; //fi que verifica se a alocacao deu certo ou nao 
+
+    //preenchendo o vetor usando aritmetica de ponteiros
+    // (notas + i) c
+    for (int i = 0; i < n; i++) {
+        scanf("%f", (notas + i));
+    }
+
+    //lendo a quantidade de novas notas k que serao adicionadas depois
+    scanf("%d", &k);
+
+    int total_alunos = n;
+    int rodada = 0;
+
+    //while  para controlar o relatorio inicial e o atualizado
+    while (rodada < 2) {
+        
+        //calculo da media 
+        float soma = 0;
+        for (int i = 0; i < total_alunos; i++) {
+            soma += *(notas + i); 
+        }
+        float media = soma / total_alunos;
+
+        // menor e maior nota 
+        //inicializado  com a primeira nota (*notas) e o primeiro aluno
+        float maior = *notas;
+        float menor = *notas;
+        int aluno_maior = 1;
+        int aluno_menor = 1;
+
+        for (int i = 0; i < total_alunos; i++) {
+            //se a nota atual for maior o valor e o indice do aluno sao atualizados 
+            if (*(notas + i) > maior) {
+                maior = *(notas + i);
+                aluno_maior = i + 1;
+            }
+            //se  anota for menor 
+            if (*(notas + i) < menor) {
+                menor = *(notas + i);
+                aluno_menor = i + 1;
+            }
+        }
+
+        //acima da media 
+        int acima_media = 0;
+        for (int i = 0; i < total_alunos; i++) {
+            if (*(notas + i) > media) {
+                acima_media++;
+            }
+        }
+
+        //calculo da mediana 
+        //vetor temporario para ordenar as notas sem alterar a ordem original dos alunos
+        float *copia_ordenada = (float *)malloc(total_alunos * sizeof(float));
+        for (int i = 0; i < total_alunos; i++) {
+            *(copia_ordenada + i) = *(notas + i);
+        }
+
+        //bubble sort pra percorrer o vetor comparando pares vizinhos
+        for (int i = 0; i < total_alunos - 1; i++) {
+            for (int j = 0; j < total_alunos - i - 1; j++) {
+                if (*(copia_ordenada + j) > *(copia_ordenada + j + 1)) {
+                    //troca de valores usando uma variavel auxiliar
+                    float temp = *(copia_ordenada + j);
+                    *(copia_ordenada + j) = *(copia_ordenada + j + 1);
+                    *(copia_ordenada + j + 1) = temp;
+                }
+            }
+        }
+
+        float mediana;
+        //se a quantidade for impar - pega o elemento do meio
+        if (total_alunos % 2 != 0) {
+            mediana = *(copia_ordenada + (total_alunos / 2));
+        } else {
+            //se for par -  faz a media aritmetica dos dois elementos centrais
+            mediana = (*(copia_ordenada + (total_alunos / 2) - 1) + *(copia_ordenada + (total_alunos / 2))) / 2.0;
+        }
+
+        //calculo da moda
+        int max_frequencia = 0;
+        float moda_valor = 0;
+        int multiplas_modas = 0;
+
+        for (int i = 0; i < total_alunos; i++) {
+            int frequencia = 0;
+            //compara a nota atual com todas as outras para contar repeticoes
+            for (int j = 0; j < total_alunos; j++) {
+                if (*(notas + i) == *(notas + j)) {
+                    frequencia++;
+                }
+            }
+            //se encontrarmos uma nota que repete mais que a anterior
+            if (frequencia > max_frequencia) {
+                max_frequencia = frequencia;
+                moda_valor = *(notas + i);
+                multiplas_modas = 0; //reseta o indicador de empate
+            } 
+            //empate na freq maxima com um valor de nota diferente
+            else if (frequencia == max_frequencia && *(notas + i) != moda_valor) {
+                multiplas_modas = 1;
+            }
+        }
+
+        //prints finais 
+        if (rodada == 0) printf("Relatorio inicial\n");
+        else printf("Relatorio atualizado\n");
+
+        printf("Media: %.2f\n", media);
+        printf("Maior nota: %.2f (aluno %d)\n", maior, aluno_maior);
+        printf("Menor nota: %.2f (aluno %d)\n", menor, aluno_menor);
+        printf("Acima da media: %d\n", acima_media);
+        printf("Mediana: %.2f\n", mediana);
+
+        //regra da questao: so tem  moda se houver repeticao  e se for unica
+        if (max_frequencia <= 1 || multiplas_modas) {
+            printf("Moda: Nao ha moda unica\n");
+        } else {
+            printf("Moda: %.2f\n", moda_valor);
+        }
+        printf("\n");
+
+        //libera a memoria da copia 
+        free(copia_ordenada);
+
+        //realloc
+        //se estivermos no fim da primeira rodada, adicionamos as novas notas
+        if (rodada == 0) {
+            //redimensiona o bloco de memoria original para caber as k novas notas
+            float *temp = (float *)realloc(notas, (n + k) * sizeof(float));
+            if (temp != NULL) {
+                notas = temp;
+                //le as novas notas a partir da posicao onde as antigas pararam (n)
+                for (int i = 0; i < k; i++) {
+                    scanf("%f", (notas + n + i));
+                }
+                total_alunos = n + k; //atualiza o contador total para a rodada 2
+            }
+        }
+        rodada++; //avanca para o relatorio atualizado
+    }
+
+    free(notas);
+
+    return 0;
+}
