@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n;
+    //if para ler a quantidade de strings
+    if (scanf("%d", &n) != 1) return 0;
+
+    // alocacao dinamica de um array de ponteiros para as strings 
+    char **strings = (char **)malloc(n * sizeof(char *));
+    if (strings == NULL) return 1;
+
+    int total_caracteres = 0;
+    //array responsavel por armazenar o tamanho de cada string lida
+    int *tamanhos = (int *)malloc(n * sizeof(int));
+
+    //ler as trings usando ponteiros e alocação dinâmica
+    for (int i = 0; i < n; i++) {
+        char buffer[1001];
+        scanf("%s", buffer);
+        
+        int len = 0;
+        char *bPtr = buffer;
+        while (*bPtr != '\0') { //Usando desreferenciação de ponteiro 
+            len++;
+            bPtr++; //aritmetica de ponteiros para percorrer o buffer 
+        }
+        
+        *(tamanhos + i) = len; // acessando array com  ponteiro
+        total_caracteres += len;
+        
+        //alocando espaço exato para cada string 
+        *(strings + i) = (char *)malloc((len + 1) * sizeof(char));
+        if (*(strings + i) != NULL) {
+            char *dest = *(strings + i);
+            char *src = buffer;
+            while (*src != '\0') {
+                *dest = *src;
+                dest++;
+                src++;
+            }
+            *dest = '\0';
+        }
+    }
+
+    //alocação para a string mesclada final
+    char *merged = (char *)malloc((total_caracteres + 1) * sizeof(char));
+    if (merged == NULL) return 1;
+
+    //mesclagem
+    int *indices = (int *)malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) *(indices + i) = 0;
+
+    int k = 0;
+    while (k < total_caracteres) {
+        for (int i = 0; i < n; i++) {
+            if (*(indices + i) < *(tamanhos + i)) {
+                //mesclagem com ponteiros duplos e offsets
+                *(merged + k) = *(*(strings + i) + *(indices + i));
+                *(indices + i) = *(indices + i) + 1;
+                k++;
+            }
+        }
+    }
+    *(merged + k) = '\0';
+
+    printf("%s\n", merged);
+
+    //fusao
+    char *p1 = merged;
+    while (*p1 != '\0' && *(p1 + 1) != '\0') {
+        if (*p1 == *(p1 + 1)) {
+            //proximo caractere ASCII ou volta para a se for z
+            if (*p1 == 'z') {
+                *p1 = 'a';
+            } else {
+                *p1 = *p1 + 1;
+            }
+
+            //deslocando para remover o caractere fundido 
+            char *p2 = p1 + 1;
+            while (*p2 != '\0') {
+                *p2 = *(p2 + 1);
+                p2++;
+            }
+
+            //retroceder o ponteiro para verificar novas fusões 
+            if (p1 > merged) {
+                p1--;
+            }
+        } else {
+            p1++;
+        }
+    }
+
+    printf("%s\n", merged);
+
+    //lIBERAÇÃO DE MEMÓRIA
+    for (int i = 0; i < n; i++) {
+        free(*(strings + i));
+    }
+    free(strings);
+    free(tamanhos);
+    free(indices);
+    free(merged);
+
+    return 0;
+}
