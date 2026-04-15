@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int *lugares = NULL;
+    int capacidade = 0;
+    int total = 0;
+    int numero;
+
+    //ler os dados ate  (EOF)
+    //alocacao dinamica que armazena cada  lugar novo
+    while (scanf("%d", &numero) != EOF) {
+        capacidade++;
+        int *temp = (int *)realloc(lugares, capacidade * sizeof(int));
+        
+        if (temp != NULL) {
+            lugares = temp;
+            lugares[total] = numero;
+            total++;
+        }
+    }
+
+    printf("Mais um bom dia de trabalho!\n");
+
+    // Primeiro loop que serve para printar apenas os impares 
+    int i = 0;
+    while (i < total) {
+        if (lugares[i] % 2 != 0) {
+            printf("%d\n", lugares[i]);
+        }
+        i++;
+    }
+
+    // Segundo loop apenas os pares 
+    i = 0;
+    while (i < total) {
+        if (lugares[i] % 2 == 0) {
+            printf("%d\n", lugares[i]);
+        }
+        i++;
+    }
+
+    printf("Vou visitar esses lugares de novo... algum dia.\n");
+
+    //Libera a memoria alocada dinamicamente
+    if (lugares != NULL) {
+        free(lugares);
+    }
+
+    return 0;
+}
