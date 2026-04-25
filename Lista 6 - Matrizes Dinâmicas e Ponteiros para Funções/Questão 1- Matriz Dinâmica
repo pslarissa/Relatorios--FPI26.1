@@ -1,0 +1,123 @@
+#include <stdio.h> // scanf e printf
+#include <stdlib.h> // ponteiros 
+
+//funções das operações: 
+//elas recebem um numero e retornam (return) um resultado
+// sendo n de numero.
+int dobro (int n){
+    return n*2;
+}
+
+int quadrado(int n){
+    return n*n;
+}
+
+int absoluto(int n){
+    if (n < 0) 
+        return -n; // se por algum acaso for negativo, essa funcao vai inverter o sinal 
+    
+    return n; 
+}
+
+// funcao da alocacao da matriz dinamica
+int** matriz_dinamica (int linhas, int colunas){
+    // alocacao de um vetor que vai ser responsavel por guardar os enderecos dos ponteiros (LINHAS): 
+    int **linhas_endereco = (int**)malloc(linhas *sizeof(int*));
+    //linha atual
+    int A_linha = 0;
+    while (A_linha < linhas){
+        // alocacao do um vetor de inteiros para cada linha, para formar as colunas 
+        linhas_endereco[A_linha] = (int*)malloc(colunas * sizeof(int));
+        A_linha++;
+    }
+    return linhas_endereco;
+}
+
+//Funcao responsavel por ler os elementos da matriz, void pois nao precisa de retorno, vai apenas ler 
+void elemetos_m(int **matriz_leitura, int linhas, int colunas){
+    int L = 0;//lINHA
+    int C; //COLUNAS
+
+    while (L < linhas){
+        C = 0;
+        while (C < colunas){
+            //guadar a posicao [linha][coluna]
+            scanf("%d",&matriz_leitura[L][C]);
+            C++;
+        }
+        L++;
+    }   
+}
+
+//FUNCAO PARA OUTPUT da matriz  muito parecida com a anterior 
+void print_final(int **matriz_print, int linhas, int colunas){
+    int L = 0; //lINHA
+    int C; 
+    while (L < linhas){
+        C = 0;
+        while (C < colunas){
+            printf("%d", matriz_print[L][C]);
+            if (C < colunas - 1) printf(" ");
+            C++;
+        }
+        printf("\n");
+        L++;
+    }
+}
+
+//Funcao alterada para operacao 
+void operacao(int **matriz_alvo, int linhas, int colunas, int (*ponteiro_funcao)(int)){
+    int L = 0;
+    int C;
+    while (L < linhas){
+        C = 0;
+        while (C < colunas){
+            matriz_alvo[L][C] = ponteiro_funcao(matriz_alvo[L][C]);
+            C++;
+        }
+        L++;
+    }
+}
+
+//Funcao para liberar a memoria
+void liberar_m(int **m_liberar, int linhas){
+    int L = 0;
+    while (L < linhas){
+        free(m_liberar[L]);
+        L++;
+    }
+    free(m_liberar);
+}
+
+int main(){
+    int linhas, colunas, operacao_escolhida;
+
+    //leitira das dimensoes
+    if (scanf("%d %d", &linhas, &colunas) != 2) return 0;
+
+    //criando a matriz
+    int **matriz_principal = matriz_dinamica(linhas, colunas);
+
+    //elementos
+    elemetos_m(matriz_principal, linhas, colunas);
+
+    //scanf prar receber a operaao
+    scanf("%d", &operacao_escolhida);
+
+    // operacao  escolhida
+    if (operacao_escolhida == 1) {
+        operacao(matriz_principal, linhas, colunas, dobro);
+    } else if (operacao_escolhida == 2) {
+        operacao(matriz_principal, linhas, colunas, quadrado);
+    } else if (operacao_escolhida == 3) {
+        operacao(matriz_principal, linhas, colunas, absoluto);
+    }
+
+    // print FINAL
+    print_final(matriz_principal, linhas, colunas);
+
+    //liberacao de memoraia, chamada da funcao
+    liberar_m(matriz_principal, linhas);
+
+    return 0; 
+}
