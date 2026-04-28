@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// funcoes recebem e retornam inteiros
+int calibracao(int valor) { return valor + 5; }
+int saturacao(int valor) { return (valor > 80) ? 80 : valor; }
+int amplificador(int valor) { return valor * 2; }
+
+//funcao  para modificar a matriz conforme a regra do pipeline
+void modificar(int** mat, int n, int m, int (**pipeline)(int), int k) {
+    //mat matriz dinamica de sensores
+    //n quantidade de linhas
+    //m quantidade de colunas
+    //pipeline vetor de ponteiros para as funcoes de filtro
+    //k numero de funcoes a aplicar no pipeline
+    int i = 0;//i indice da linha atual
+    while (i < n) {
+        int j = 0;//indice da coluna atual
+        while (j < m) {
+            int p = 0;// indice do filtro atual dentro do pipeline
+            while (p < k) {
+                //aplica o filtro da posicao p no valor da matriz usando asterisco
+                (*(*(mat + i) + j)) = (*(pipeline + p))((*(*(mat + i) + j)));
+                p++;
+            }
+            j++;
+        }
+        i++;
+    }
+}
+
+int main() {
+    int n, m;//n numero de linhas e m numero de colunas
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    //criacao da matriz usando malloc
+    int** matriz = (int**)malloc(n * sizeof(int*));//matriz ponteiro para vetor de ponteiros
+    int i = 0;//i variavel de controle de alocacao
+    while (i < n) {
+        *(matriz + i) = (int*)malloc(m * sizeof(int));
+        int j = 0;//j variavel de controle de leitura
+        while (j < m) {
+            scanf("%d", (*(matriz + i) + j));
+            j++;
+        }
+        i++;
+    }
+
+    int comando = -1;//comando armazena o id da operacao
+    while (comando != 0) {
+        if (scanf("%d", &comando) != 1) comando = 0;
+
+        int (**pipeline)(int) = NULL;//pipeline *vetor dinamico* de funcoes
+        int k = 0;//k quantidade de processos no pipeline
+
+        if (comando >= 1 && comando <= 3) {
+            //trata comandos simples como pipeline de tamanho 1
+            k = 1;
+            pipeline = (int (**)(int))malloc(k * sizeof(int (*)(int)));
+            if (comando == 1) *pipeline = calibracao;
+            if (comando == 2) *pipeline = saturacao;
+            if (comando == 3) *pipeline = amplificador;
+            modificar(matriz, n, m, pipeline, k);
+            free(pipeline);
+        } else if (comando == 4) {
+            //le sequencia de filtros para o pipeline
+            scanf("%d", &k);
+            pipeline = (int (**)(int))malloc(k * sizeof(int (*)(int)));
+            int p = 0;//p indice para preenchimento do vetor
+            while (p < k) {
+                int f;//f id do filtro lido
+                scanf("%d", &f);
+                if (f == 1) *(pipeline + p) = calibracao;
+                if (f == 2) *(pipeline + p) = saturacao;
+                if (f == 3) *(pipeline + p) = amplificador;
+                p++;
+            }
+            modificar(matriz, n, m, pipeline, k);
+            free(pipeline);
+        }
+    }
+
+    //exibicao dos resultados finais
+    printf("Matriz processada:\n");
+    int maior = (*(*(matriz + 0) + 0));//maior armazena o valor do sensor critico
+    int lin_critica = 0, col_critica = 0;//coordenadas do maior valor
+    i = 0;
+    while (i < n) {
+        int j = 0;
+        while (j < m) {
+            int valor_atual = (*(*(matriz + i) + j));//valor_atual leitura na posicao i j
+            printf("%d%s", valor_atual, (j == m - 1) ? "" : " ");
+            if (valor_atual > maior) {
+                maior = valor_atual;
+                lin_critica = i;
+                col_critica = j;
+            }
+            j++;
+        }
+        printf("\n");
+        i++;
+    }
+
+    printf("\nSensor critico: %d\n", maior);
+    printf("Posicao: (%d,%d)\n", lin_critica, col_critica);
+
+    //limpeza da memoria alocada
+    i = 0;
+    while (i < n) {
+        free(*(matriz + i));
+        i++;
+    }
+    free(matriz);
+
+    return 0;
+}
