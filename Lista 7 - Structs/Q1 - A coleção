@@ -1,0 +1,199 @@
+//Relatório: Não foi uma questão tão díficil de ser feita, só pedi ajuda para o Gemini para o uso certo das strutcs, que não tinha muita prática com elas. 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+// Struct que armazena os dados de cada jogo da colecao
+typedef struct {
+    char *titulo_jogo;
+    char *genero_jogo;
+    char *estudio_jogo;
+    char *console_jogo;
+    int nota_jogo;
+    int ano_jogo;
+} Jogo;
+
+//Definindo um typedef que aponta para funcoes de busca e impressao
+typedef void (*Comando_Ptr)(Jogo **, int, char *);
+
+//Compara duas strings
+int strings_iguais(char *str_a, char *str_b) {
+    // loop para percorre ambos os ponteiros ate encontrar o fim de um deles
+    while (*str_a != '\0' && *str_b != '\0') {
+        if (*str_a != *str_b) {
+            return 1; //Return 1 se encontrar caracteres diferentes
+        }
+        str_a++;
+        str_b++;
+    }
+    //Se ambos terminarem juntos -- as strings sao identicas
+    return (*str_a == *str_b) ? 0 : 1;
+}
+
+//Convercao deuma string numerica para inteiro sem funcoes prontas
+int texto_inteiro(char *str_num) {
+    int valor_final = 0;
+    while (*str_num >= '0' && *str_num <= '9') {
+        //Deslocacao da casa decimal e soma o novo digito
+        valor_final = (valor_final * 10) + (*str_num - '0');
+        str_num++;
+    }
+    return valor_final;
+}
+
+// funcao para printar os jogos de um ano especifico
+void busca_ano(Jogo **lista_jogos, int total_n, char *param_busca) {
+    int ano_alvo = texto_inteiro(param_busca);
+    int cont_jogos = 0;
+    int indice_i = 0;
+    while (indice_i < total_n) {
+        //brusca o membro ano_jogo da struct apontada na matriz
+        if ((*(*(lista_jogos + indice_i))).ano_jogo == ano_alvo) {
+            printf("%s\n", (*(*(lista_jogos + indice_i))).titulo_jogo);
+            cont_jogos++;
+        }
+        indice_i++;
+    }
+    if (cont_jogos > 0) printf("Tenho %d jogos || %s.\n", cont_jogos, param_busca);
+    else printf("Nenhum jogo tem esse parâmetro Sr Sr Wilson.\n");
+}
+
+//print dos jogos que comecam com uma letra especifica
+void busca_letra(Jogo **lista_jogos, int total_n, char *param_busca) {
+    char letra_alvo = *param_busca;
+    int cont_jogos = 0;
+    int indice_i = 0;
+    while (indice_i < total_n) {
+        // bursca o primeiro caractere da string titulo_jogo
+        if (*((*(*(lista_jogos + indice_i))).titulo_jogo) == letra_alvo) {
+            printf("%s\n", (*(*(lista_jogos + indice_i))).titulo_jogo);
+            cont_jogos++;
+        }
+        indice_i++;
+    }
+    if (cont_jogos > 0) printf("Tenho %d jogos || %s.\n", cont_jogos, param_busca);
+    else printf("Nenhum jogo tem esse parâmetro Sr Sr Wilson.\n");
+}
+
+// print odos jogos de um estudio especifico
+void busca_estudio(Jogo **lista_jogos, int total_n, char *param_busca) {
+    int cont_jogos = 0;
+    int indice_i = 0;
+    while (indice_i < total_n) {
+        if (strings_iguais((*(*(lista_jogos + indice_i))).estudio_jogo, param_busca) == 0) {
+            printf("%s\n", (*(*(lista_jogos + indice_i))).titulo_jogo);
+            cont_jogos++;
+        }
+        indice_i++;
+    }
+    if (cont_jogos > 0) printf("Tenho %d jogos || %s.\n", cont_jogos, param_busca);
+    else printf("Nenhum jogo tem esse parâmetro Sr Sr Wilson.\n");
+}
+
+// print dos  jogos de um console especifico
+void busca_console(Jogo **lista_jogos, int total_n, char *param_busca) {
+    int cont_jogos = 0;
+    int indice_i = 0;
+    while (indice_i < total_n) {
+        if (strings_iguais((*(*(lista_jogos + indice_i))).console_jogo, param_busca) == 0) {
+            printf("%s\n", (*(*(lista_jogos + indice_i))).titulo_jogo);
+            cont_jogos++;
+        }
+        indice_i++;
+    }
+    if (cont_jogos > 0) printf("Tenho %d jogos || %s.\n", cont_jogos, param_busca);
+    else printf("Nenhum jogo tem esse parâmetro Sr Sr Wilson.\n");
+}
+
+// print de  todos os titulos e notas da colecao
+void lista_tudo(Jogo **lista_jogos, int total_n, char *param_busca) {
+    int indice_i = 0;
+    while (indice_i < total_n) {
+        printf("%s %d\n", (*(*(lista_jogos + indice_i))).titulo_jogo, (*(*(lista_jogos + indice_i))).nota_jogo);
+        indice_i++;
+    }
+}
+
+int main() {
+    int n_jogos, indice_i;
+    // scanf q le da quantidade inicial de jogos
+    if (scanf("%d", &n_jogos) != 1) return 0;
+
+    // Alocacao dinamica da matriz de ponteiros para as structs
+    Jogo **colecao_p = (Jogo **)malloc(n_jogos * sizeof(Jogo *));
+
+    indice_i = 0;
+    while (indice_i < n_jogos) {
+        //Aloca memoria para uma struct Jogo no heap ??
+        *(colecao_p + indice_i) = (Jogo *)malloc(sizeof(Jogo));
+        
+        //Alocacao individual para cada string dentro da struct
+        (*(*(colecao_p + indice_i))).titulo_jogo = (char *)malloc(101 * sizeof(char));
+        (*(*(colecao_p + indice_i))).genero_jogo = (char *)malloc(101 * sizeof(char));
+        (*(*(colecao_p + indice_i))).estudio_jogo = (char *)malloc(101 * sizeof(char));
+        (*(*(colecao_p + indice_i))).console_jogo = (char *)malloc(101 * sizeof(char));
+
+        //scanf  de dados dos jogos com ponteiros
+        scanf("%s %s %s %s %d %d", 
+              (*(*(colecao_p + indice_i))).titulo_jogo, 
+              (*(*(colecao_p + indice_i))).genero_jogo, 
+              (*(*(colecao_p + indice_i))).estudio_jogo, 
+              (*(*(colecao_p + indice_i))).console_jogo, 
+              &((*(*(colecao_p + indice_i))).nota_jogo), 
+              &((*(*(colecao_p + indice_i))).ano_jogo));
+
+        // condicioanis afim de veridicar  imediato a nota
+        if ((*(*(colecao_p + indice_i))).nota_jogo > 7) {
+            printf("AWESOME! Mais um GOTY pra minha coleção!\n");
+        } else if ((*(*(colecao_p + indice_i))).nota_jogo < 4) {
+            printf("Era melhor jogar mais um jogo de Mahjong.\n");
+        }
+        indice_i++;
+    }
+
+    char nome_funcao[101], param_comando[101];
+    //Loop de comandos ate (EOF)
+    while (scanf("%s", nome_funcao) != EOF) {
+        Comando_Ptr acao_p = NULL;
+        int precisa_param = 1;
+
+        //Mapeamento manual do comando para o ponteiro de funcao
+        if (strings_iguais(nome_funcao, "printAno") == 0) acao_p = busca_ano;
+        else if (strings_iguais(nome_funcao, "printLetra") == 0) acao_p = busca_letra;
+        else if (strings_iguais(nome_funcao, "printStudio") == 0) acao_p = busca_estudio;
+        else if (strings_iguais(nome_funcao, "printConsole") == 0) acao_p = busca_console;
+        else if (strings_iguais(nome_funcao, "printColecao") == 0) { 
+            acao_p = lista_tudo; 
+            precisa_param = 0; 
+        }
+
+        //chama a funcao se o comando for reconhecido
+        if (acao_p != NULL) {
+            if (precisa_param) {
+                scanf("%s", param_comando);
+                acao_p(colecao_p, n_jogos, param_comando);
+            } else {
+                acao_p(colecao_p, n_jogos, "");
+            }
+        }
+    }
+
+    printf("Enjoei de jogar, agora vou ver TV.\n");
+
+    //Liberacao de memoria dinamica (**Boas praticas************)
+    indice_i = 0;
+    while (indice_i < n_jogos) {
+        free((*(*(colecao_p + indice_i))).titulo_jogo);
+        free((*(*(colecao_p + indice_i))).genero_jogo);
+        free((*(*(colecao_p + indice_i))).estudio_jogo);
+        free((*(*(colecao_p + indice_i))).console_jogo);
+        free(*(colecao_p + indice_i));
+        indice_i++;
+    }
+    free(colecao_p);
+
+    return 0;
+}
