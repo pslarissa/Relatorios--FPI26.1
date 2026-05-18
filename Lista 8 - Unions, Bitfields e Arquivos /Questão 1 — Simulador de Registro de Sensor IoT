@@ -1,3 +1,4 @@
+//Relatório: No início (as primeiras duas questões) não foram difíceis, mas precisei da ajuda da ia para encontrar a forma correta de implementar o novo conteudo na minha lógica de questão. Mas foi basicamente usada para isso. 
 #include <stdio.h>
 #include <string.h>
 
