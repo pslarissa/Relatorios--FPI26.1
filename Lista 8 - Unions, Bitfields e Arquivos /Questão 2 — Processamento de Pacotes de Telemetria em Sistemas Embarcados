@@ -1,0 +1,129 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Definição da estrutura de bitfields para representar o protocolo de hardware de 32 bits.
+// A ordem dos campos segue estritamente do LSB para o MSB conforme a tabela da questao:
+// - ID do Sensor: 10 bits
+// - Codigo de Status: 3 bits
+// - Bateria Baixa: 1 bit
+// - Temperatura: 12 bits (Inteiro com sinal)
+// - Controle/Paridade: 6 bits
+// Total = 10 + 3 + 1 + 12 + 6 = 32 bits.
+struct CamposTelemetria {
+    unsigned int id_sensor : 10;
+    unsigned int codigo_status : 3;
+    unsigned int bateria_baixa : 1;
+    signed int temperatura : 12; // Declarado como signed para tratar complemento de 2 automaticamente
+    unsigned int controle_paridade : 6;
+};
+
+//Union que vai sobrepor o dado bruto de 32 bits (uint32_t  por unsigned int) com a estrutura de bitfields.
+union PacoteTelemetria {
+    unsigned int dado_bruto;
+    struct CamposTelemetria campos;
+};
+
+int main() {
+    //Capacidade inicial do vetor dinamico, conforme os requisitos
+    int capacidade_maxima = 2;
+    int pacotes_lidos = 0;
+
+    //Alocacao dinamica inicial do vetor de pacotes utilizando malloc
+    union PacoteTelemetria *vetor_pacotes = (union PacoteTelemetria *) malloc(capacidade_maxima * sizeof(union PacoteTelemetria));
+
+    //Variavel temporaria para ler a entrada hexadecimal e variavel de controle do loop
+    unsigned int valor_entrada;
+    int continuar_leitura = 1;
+
+    //Loop de leitura que evita o uso de break. Ele roda enquanto a condicao for verdadeira
+    while (continuar_leitura == 1) {
+
+        //Solicitacao/Leitura do valor hexadecimal da entrada padrao
+        if (scanf("%x", &valor_entrada) != 1) {
+            continuar_leitura = 0;
+        } else {
+
+            //Condicao de parada estabelecida no enunciado: valor 0 ou 0x0 encerra a leitura
+            if (valor_entrada == 0) {
+                continuar_leitura = 0;
+            } else {
+
+                //Verifica se o vetor atingiu a capacidade maxima para realizar a realocacao (boa pratica)
+                if (pacotes_lidos == capacidade_maxima) {
+
+                    //Dobra o tamanho da capacidade maxima 
+                    capacidade_maxima = capacidade_maxima * 2;
+
+                    //Realizacao do realloc para expandir o espaco de memoria do vetor dinamico
+                    union PacoteTelemetria *vetor_temporario =
+                        (union PacoteTelemetria *) realloc(
+                            vetor_pacotes,
+                            capacidade_maxima * sizeof(union PacoteTelemetria)
+                        );
+
+                    //Atualiza o ponteiro principal com o novo endereço realocado
+                    vetor_pacotes = vetor_temporario;
+                }
+
+                // Insere o dado lido no vetor dinamico utilizando a sintaxe de ponteiros pura *(ponteiro + deslocamento)) para cumprir a regra de nao usar o operador de colchete em ponteiros ou setas
+                (*(vetor_pacotes + pacotes_lidos)).dado_bruto = valor_entrada;
+
+                pacotes_lidos = pacotes_lidos + 1;
+            }
+        }
+    }
+
+    // Inicio do processamento e impressao do relatorio de saida
+    int id_processamento = 0;
+
+    //Loop para  todos os pacotes armazenados no vetor dinamico
+    while (id_processamento < pacotes_lidos) {
+
+        //Criacao de um ponteiro para apontar para o pacote atual da iteracao
+        union PacoteTelemetria *pacote_atual =
+            (vetor_pacotes + id_processamento);
+
+        //print final
+        printf(
+            "Pacote [%d] - Dado Bruto: 0x%08X\n",
+            id_processamento + 1,
+            (*pacote_atual).dado_bruto
+        );
+
+        printf(
+            "ID do Sensor : %u\n",
+            (*pacote_atual).campos.id_sensor
+        );
+
+        printf(
+            "Status : %u\n",
+            (*pacote_atual).campos.codigo_status
+        );
+
+        //Condicional para tratar a exibicao amigavel da flag de bateria baixa
+        if ((*pacote_atual).campos.bateria_baixa == 1) {
+            printf("Bateria Baixa: SIM (ALERTA)\n");
+        } else {
+            printf("Bateria Baixa: Nao\n");
+        }
+
+        // output da temperatura
+        // Como o bitfield foi definido como signed int de 12 bits - preserva o sinal negativo
+        printf(
+            "Temperatura : %d graus\n",
+            (*pacote_atual).campos.temperatura
+        );
+
+        printf("--------------------------------------------------\n");
+
+        //adicionando o indice para avancar no vetor
+        id_processamento = id_processamento + 1;
+    }
+
+    //BOAS PRÁTICAS - liberacao de memoria
+
+    free(vetor_pacotes);
+    vetor_pacotes = NULL;
+
+    return 0;
+}
