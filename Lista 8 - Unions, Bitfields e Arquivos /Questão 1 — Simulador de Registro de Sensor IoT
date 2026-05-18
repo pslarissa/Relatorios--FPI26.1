@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <string.h>
+
+// A ordem de bits vai do menos significativo (LSB) para o mais significativo: erro - modo - leitura
+// a struct foi definida de campos de bits utilizando o tipo 'unsigned char' para ocupar 1 byte
+// - Erro (1° bit): tamanho de 1 bit
+// - Modo de Operação (2° a 4° bits): tamanho de 3 bits
+// - Leitura do Sensor (5° a 8° bits): tamanho de 4 bits
+struct CamposSensor {
+    unsigned char erro : 1;
+    unsigned char modo_operacao : 3;
+    unsigned char leitura_sensor : 4;
+};
+
+// A union sobrepõe o único byte bruto (unsigned char) à estrutura de campos de bits criada
+union RegistroSensor {
+    unsigned char byte_bruto;
+    struct CamposSensor campos;
+};
+
+int main() {
+    //Instancia da uniao para mapear o dado recebido na entrada padrao
+    union RegistroSensor sensor_atual;
+    
+    //ponteiro para a união criado para cumprir a regra de ponteiros
+    union RegistroSensor *ponteiro_sensor = &sensor_atual;
+
+    //variável para capturar temporariamente o valor numérico que você digitar.
+    int valor_entrada;
+
+    //condiciional para a leitura dos testes cases 
+    if (scanf("%d", &valor_entrada) == 1) {
+        //vai arribuir o valor digitado diretamente ao byte bruto por meio do ponteiro (*ponteiro).membro.
+        (*ponteiro_sensor).byte_bruto = (unsigned char)valor_entrada;
+
+        //prints que a questao pede!!!
+        printf("Byte bruto: %u | Erro: %u | Modo: %u | Leitura: %u\n", 
+               (*ponteiro_sensor).byte_bruto, 
+               (*ponteiro_sensor).campos.erro, 
+               (*ponteiro_sensor).campos.modo_operacao, 
+               (*ponteiro_sensor).campos.leitura_sensor);
+    }
+
+    return 0;
+}
