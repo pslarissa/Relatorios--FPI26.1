@@ -26,7 +26,7 @@ int main() {
     //ponteiro para a união criado para cumprir a regra de ponteiros
     union RegistroSensor *ponteiro_sensor = &sensor_atual;
 
-    //variável para capturar temporariamente o valor numérico que você digitar.
+    //variável para capturar temporariamente o valor numérico
     int valor_entrada;
 
     //condiciional para a leitura dos testes cases 
