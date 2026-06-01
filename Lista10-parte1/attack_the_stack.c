@@ -1,3 +1,5 @@
+/*relatorio: nao foi uma lista de difícil e nem um conteudo tao complicado. Utilizei Ia (gemini) para me ajudar a entender melhor o conteúdo e como eu poderia aplica -lo na minha lógica de código. 
+ ele mesmo me sugeriu alguns blocos de código para consertar alguns erros. Mas no fim, consegui entender o conteudo de forma clara!*/
 #include <stdio.h>
 #include <stdlib.h>
 
