@@ -1,0 +1,240 @@
+/*RELATÓRIO: Lista feita com ajuda de ia. Achei esse conteúdo bem complicado e não estava conseguindo fazer com a lógica que eu tinha criado, a ia me ajudou e no fim consgui entregar e passar em todos os test cases.*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+//struct  da árvore binária de busca
+struct Node {
+    int valor;
+    struct Node *esquerda;
+    struct Node *direita;
+};
+
+//protipos de funções
+struct Node* criar_no(int valor);
+void inserir(struct Node **raiz, int valor, int *inserido);
+void pre_ordem(struct Node *raiz, int *primeiro);
+void em_ordem(struct Node *raiz, int *primeiro);
+void pos_ordem(struct Node *raiz, int *primeiro);
+int contar_nos(struct Node *raiz);
+int contar_folhas(struct Node *raiz);
+int calcular_altura(struct Node *raiz);
+struct Node* buscar_minimo(struct Node *raiz);
+struct Node* buscar_maximo(struct Node *raiz);
+void liberar_arvore(struct Node **raiz);
+
+int main(void) {
+    struct Node *raiz = NULL;
+    int valor_entrada;
+
+    // loop para leituroda os valores até encontrar o -1
+    while (scanf("%d", &valor_entrada) == 1 && valor_entrada != -1) {
+        int inserido = 0;
+        //(ponteiro para ponteiro) para modificação segura da raiz
+        inserir(&raiz, valor_entrada, &inserido);
+    }
+
+    //Caso a árvore tenha permanecido vazia
+    if (raiz == NULL) {
+        printf("ARVORE VAZIA\n");
+        return 0;
+    }
+
+    //Variáveis auxiliares para formatação correta de espaçamento nas impressões dos percursos
+    int primeiro;
+
+    //Percurso em Pré-Ordem
+    printf("PREORDEM: ");
+    primeiro = 1;
+    pre_ordem(raiz, &primeiro);
+    printf("\n");
+
+    //Percurso em Ordem (Em-Ordem)
+    printf("EMORDEM: ");
+    primeiro = 1;
+    em_ordem(raiz, &primeiro);
+    printf("\n");
+
+    //Percurso em Pós-Ordem
+    printf("POSORDEM: ");
+    primeiro = 1;
+    pos_ordem(raiz, &primeiro);
+    printf("\n");
+
+    //prints da árvore estruturada
+    printf("NOS: %d\n", contar_nos(raiz));
+    printf("FOLHAS: %d\n", contar_folhas(raiz));
+    printf("ALTURA: %d\n", calcular_altura(raiz));
+
+    //buscando os valores (mínimo e máximo)
+    struct Node *min_no = buscar_minimo(raiz);
+    struct Node *max_no = buscar_maximo(raiz);
+
+    if (min_no != NULL) {
+        printf("MENOR: %d\n", (*min_no).valor);
+    }
+    if (max_no != NULL) {
+        printf("MAIOR: %d\n", (*max_no).valor);
+    }
+
+    //Desalocação completa e segura da memória dinâmica antes de encerrar o codigo 
+    liberar_arvore(&raiz);
+
+    return 0;
+}
+
+//Aloca memória dinamicamente para um novo nó e o inicializa com segurança 9boas praticas)
+struct Node* criar_no(int valor) {
+    struct Node *novo_ptr = (struct Node *)malloc(sizeof(struct Node));
+    
+    //verificação  do retorno do malloc
+    if (novo_ptr != NULL) {
+        (*novo_ptr).valor = valor;
+        //ponteiros sempre inicializados com NULL
+        (*novo_ptr).esquerda = NULL;
+        (*novo_ptr).direita = NULL;
+    }
+    return novo_ptr;
+}
+
+//insere um valor utilizando dupla indireção- ignorando valores duplicados 
+void inserir(struct Node **raiz, int valor, int *inserido) {
+    //se chegamos a uma folha/ponteiro vazio- encontramos o local de inserção
+    if (*raiz == NULL) {
+        *raiz = criar_no(valor);
+        if (*raiz != NULL) {
+            *inserido = 1;
+        }
+        return;
+    }
+
+    //valores repetidos devem ser ignorados
+    if (valor == (**raiz).valor) {
+        return; 
+    }
+
+    //regra da árvore binária de busca: menores à esquerda, maiores à direita
+    if (valor < (**raiz).valor) {
+        inserir(&((**raiz).esquerda), valor, inserido);
+    } else {
+        inserir(&((**raiz).direita), valor, inserido);
+    }
+}
+
+//priunt dos elementos no percurso: Raiz -> Esquerda -> Direita
+void pre_ordem(struct Node *raiz, int *primeiro) {
+    if (raiz != NULL) {
+        if (!(*primeiro)) {
+            printf(" ");
+        }
+        printf("%d", (*raiz).valor);
+        *primeiro = 0;
+
+        pre_ordem((*raiz).esquerda, primeiro);
+        pre_ordem((*raiz).direita, primeiro);
+    }
+}
+
+// prints elementos no percurso: Esquerda -> Raiz -> Direita
+void em_ordem(struct Node *raiz, int *primeiro) {
+    if (raiz != NULL) {
+        em_ordem((*raiz).esquerda, primeiro);
+
+        if (!(*primeiro)) {
+            printf(" ");
+        }
+        printf("%d", (*raiz).valor);
+        *primeiro = 0;
+
+        em_ordem((*raiz).direita, primeiro);
+    }
+}
+
+//print dos elementos no percurso: Esquerda -> Direita -> Raiz
+void pos_ordem(struct Node *raiz, int *primeiro) {
+    if (raiz != NULL) {
+        pos_ordem((*raiz).esquerda, primeiro);
+        pos_ordem((*raiz).direita, primeiro);
+
+        if (!(*primeiro)) {
+            printf(" ");
+        }
+        printf("%d", (*raiz).valor);
+        *primeiro = 0;
+    }
+}
+
+//Conta o número total de nos  existentes na estrutura
+int contar_nos(struct Node *raiz) {
+    if (raiz == NULL) {
+        return 0;
+    }
+    return 1 + contar_nos((*raiz).esquerda) + contar_nos((*raiz).direita);
+}
+
+//Conta a quantidade de nós que não possuem filhos (folhas)
+int contar_folhas(struct Node *raiz) {
+    if (raiz == NULL) {
+        return 0;
+    }
+    if ((*raiz).esquerda == NULL && (*raiz).direita == NULL) {
+        return 1;
+    }
+    return contar_folhas((*raiz).esquerda) + contar_folhas((*raiz).direita);
+}
+
+//Calculates a altura da árvore de forma recursiva
+int calcular_altura(struct Node *raiz) {
+    if (raiz == NULL) {
+        return -1; //Árvore vazia possui altura -1 
+    }
+    
+    int alt_esquerda = calcular_altura((*raiz).esquerda);
+    int alt_direita = calcular_altura((*raiz).direita);
+    
+    if (alt_esquerda > alt_direita) {
+        return 1 + alt_esquerda;
+    } else {
+        return 1 + alt_direita;
+    }
+}
+
+//O menor valor sempre estará na esquerda
+struct Node* buscar_minimo(struct Node *raiz) {
+    if (raiz == NULL) {
+        return NULL;
+    }
+    while ((*raiz).esquerda != NULL) {
+        raiz = (*raiz).esquerda;
+    }
+    return raiz;
+}
+
+// O maior valor sempre estará na direita
+struct Node* buscar_maximo(struct Node *raiz) {
+    if (raiz == NULL) {
+        return NULL;
+    }
+    while ((*raiz).direita != NULL) {
+        raiz = (*raiz).direita;
+    }
+    return raiz;
+}
+
+//Desaloca a árvore usando pós-ordem e protege contra ponteiros fantasmas
+void liberar_arvore(struct Node **raiz) {
+    //só tenta liberar se o ponteiro não for nulo
+    if (raiz == NULL || *raiz == NULL) {
+        return;
+    }
+
+    //Caminnha até a base da árvore (pós-ordem para não perder a referência)
+    liberar_arvore(&((**raiz).esquerda));
+    liberar_arvore(&((**raiz).direita));
+
+    //libera a memória do nó atual 
+    free(*raiz);
+    
+    //atribui NULL imediatamente após o free
+    *raiz = NULL; 
+}
